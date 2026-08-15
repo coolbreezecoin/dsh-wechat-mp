@@ -1,0 +1,14 @@
+node_modules/
+lib/
+dist/
+*.tgz
+.env
+.DS_Store
+
+# 参考用的上游 clone,自带 .git,绝不入库
+# deepseek-harness 1.5G,doocs-md 6.5M
+vendor/
+.preview/
+
+# 内部交接文档,不公开
+PLAN.md
