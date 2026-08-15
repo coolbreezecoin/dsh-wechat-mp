@@ -19,7 +19,7 @@ The WeChat editor throws away `<style>` blocks and class names, and filters ever
 | **Typesetting** (`mp_render`) | No | Inline-styled HTML + a local preview page. Paste it into the console by hand. |
 | **API** (`mp_upload_image`, `mp_create_draft`, `mp_list_drafts`) | Yes | The agent creates the draft for you. |
 
-If your account cannot reach the draft API — an unverified personal subscription account often cannot, see [Account types](#account-types) — the typesetting layer still works and is still worth having.
+Even an unverified personal subscription account can reach the draft API — see [Account types](#account-types). And if yours cannot, the typesetting layer still works on its own.
 
 ## Install
 
@@ -123,9 +123,13 @@ This plugin caches the token on disk, refreshes five minutes early, and collapse
 
 ### Account types
 
-Which endpoints an account may call depends on its type and verification status. An unverified personal subscription account (个人订阅号) generally has neither the draft box nor the material API, and calls come back as **errcode 48001, "api unauthorized"**.
+**An unverified personal subscription account (未认证的个人订阅号) can use the draft and material APIs.** This is the most restricted account type there is, and it was verified against a real one — so if you have any Official Account at all, the API layer will probably work for you.
 
-The plugin says so in plain language when it happens. If that is your account, use `mp_render` and paste the HTML into the console yourself — that path needs no permissions at all.
+That is worth stating plainly because the opposite is widely assumed. What such an account *cannot* do is broadcast via the API — and this plugin does not broadcast anyway, so the restriction never bites.
+
+If an endpoint genuinely is not available to your account, WeChat answers **errcode 48001, "api unauthorized"**, and the plugin says so in plain language. In that case use `mp_render` and paste the HTML into the console yourself — that path needs no API permissions at all.
+
+Note that the **IP allowlist is enforced when acquiring the token**, before any endpoint is reached. So an unconfigured allowlist produces 40164 on every call and tells you nothing about your permissions; fix that first, then retest.
 
 ### Images
 
