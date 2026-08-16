@@ -36,6 +36,14 @@ export interface Config {
   /** Default author written on drafts when a call omits it. */
   defaultAuthor: string
   /**
+   * Local jpg/png used as the cover when publishing straight from a chat reply.
+   *
+   * The one-click button has nowhere to pick a cover, and WeChat rejects an
+   * article without one — so without this the button cannot work. The agent
+   * tools take a cover per call and ignore this.
+   */
+  defaultCover: string
+  /**
    * Ask the user before each upload and draft creation.
    *
    * Off by default. Nothing in this plugin publishes: a draft still needs a human
@@ -62,6 +70,7 @@ export const Config: Schema<Config> = Schema.object({
   tokenCacheDir: Schema.string().default(''),
   baseUrl: Schema.string().default(DEFAULT_BASE_URL),
   defaultAuthor: Schema.string().default(''),
+  defaultCover: Schema.string().default(''),
   requireApproval: Schema.boolean().default(false),
 })
 

@@ -11,9 +11,11 @@ import type { Context } from '@deepseek-ai/cordis'
 // Type-only: resolves ctx.credentials for the API-tool child below.
 import type {} from '@deepseek-ai/dsh-credentials'
 import type { Config } from './config.ts'
+import { WechatMpService } from './remote/service.ts'
 import { registerApiTools } from './tools/api.ts'
 import { registerRenderTool } from './tools/render.ts'
 
+export { TYPERT } from './remote/typert.host.ts'
 export { Config } from './config.ts'
 export type { Config as ConfigType } from './config.ts'
 
@@ -34,5 +36,8 @@ export function apply(ctx: Context, config: Config): void {
   registerRenderTool(ctx, config)
   ctx.inject(['credentials'], (credentialCtx) => {
     registerApiTools(credentialCtx, config)
+    // The publish button's Host end. It lives beside the tools rather than in the
+    // agent preset because its caller is the browser, outside the agent loop.
+    credentialCtx.plugin(WechatMpService, config)
   })
 }

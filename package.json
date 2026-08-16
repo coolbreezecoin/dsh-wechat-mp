@@ -22,7 +22,11 @@
     "./render": {
       "types": "./lib/render/index.d.ts",
       "default": "./lib/render/index.js"
-    }
+    },
+    "./client": {
+      "default": "./lib/client/index.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "lib/**/*.js",
@@ -33,6 +37,14 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-api-remotes",
+        "@deepseek-ai/dsh-client-ui-conversation"
+      ]
     }
   },
   "scripts": {
@@ -45,22 +57,25 @@
     "cheerio": "^1.1.2",
     "highlight.js": "^11.11.1",
     "juice": "^12.1.2",
-    "marked": "^18.0.9"
+    "marked": "^18.0.9",
+    "zod": "^4.4.3"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6",
     "@deepseek-ai/dsh-tools": ">=0.1.0-rc.6",
-    "@deepseek-ai/schemastery": "^3.18.1",
-    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6"
+    "@deepseek-ai/dsh-typert-protocol": ">=0.1.0-rc.6",
+    "@deepseek-ai/schemastery": "^3.18.1"
   },
   "devDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-credentials": "0.1.0-rc.6",
     "@deepseek-ai/dsh-tools": "0.1.0-rc.6",
+    "@deepseek-ai/dsh-typert-protocol": "0.1.0-rc.6",
     "@deepseek-ai/schemastery": "3.18.1",
     "@types/node": "^22.20.0",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.8",
-    "@deepseek-ai/dsh-credentials": "0.1.0-rc.6"
+    "vitest": "^4.1.8"
   },
   "keywords": [
     "dsh-plugin",

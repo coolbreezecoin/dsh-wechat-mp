@@ -85,6 +85,24 @@ It **refuses before touching the API** if any image token is still unresolved �
 
 Recent drafts, newest first. Useful to confirm one landed.
 
+## One-click publish (Web UI)
+
+Every assistant reply gets a **发公众号** button. One click typesets that reply with your configured theme and puts it in the draft box — no need to save it to a file first and ask the agent to publish it.
+
+The title comes from the message's first heading, or its first line of prose, cut to 64 characters.
+
+A cover is required before the button can work: WeChat rejects an article without one, and the button has nowhere to pick it.
+
+```yaml
+- id: wechat-mp
+  config:
+    defaultCover: /Users/you/posts/img/cover.png
+```
+
+Unconfigured, a click tells you which key to set rather than failing silently.
+
+The button and the tools share the same typesetting and API code, so the two produce identical output. If the message references remote images the button refuses and says why — WeChat filters those out, and a broken article is worse than a refused click.
+
 ## Approval
 
 The write tools run without prompting. Nothing here publishes — a draft still needs a human to open the console and press send — so an unattended run leaves you a draft to delete, not a post your readers already saw.
@@ -119,6 +137,7 @@ All optional; set them on the plugin row in your profile's `cordis.patch.yml`.
     tokenCacheDir: ''       # '' → a temp directory
     baseUrl: https://api.weixin.qq.com
     defaultAuthor: ''
+    defaultCover: ''         # required by the one-click button
     requireApproval: false   # true → prompt before each write
 ```
 
