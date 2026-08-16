@@ -67,11 +67,11 @@ Image sources come back as placeholder tokens (`dsh-mp-image-0`, …), not URLs 
 | `indent` | Indent each paragraph 2em, as Chinese print does. |
 | `line_numbers` | Line numbers in code blocks. |
 
-### `mp_upload_image` — write, **requires approval**
+### `mp_upload_image` — write
 
 Uploads one local jpg/png (under 1 MB) and returns its `mmbiz.qpic.cn` URL.
 
-### `mp_create_draft` — write, **requires approval**
+### `mp_create_draft` — write
 
 Takes the `htmlPath` from `mp_render`, the token→URL map from the uploads, a title and a cover, and creates the draft.
 
@@ -83,9 +83,19 @@ Recent drafts, newest first. Useful to confirm one landed.
 
 ## Approval
 
-The two write tools go through dsh's approval seam via `tools/pre-execute`, and **fail closed**: with no approval channel composed, the call is denied rather than silently allowed. There is no configuration switch to disable this — an Official Account is a public publishing channel.
+The write tools run without prompting. Nothing here publishes — a draft still needs a human to open the console and press send — so an unattended run leaves you a draft to delete, not a post your readers already saw.
 
-A headless deployment with no answerer therefore cannot upload or create drafts. That is deliberate. Compose an approval answerer (the Web UI has one) or drive it through a machine answerer such as the ACP bridge.
+Turn the prompts on if you want them:
+
+```yaml
+- id: wechat-mp
+  config:
+    requireApproval: true
+```
+
+They then go through dsh's approval seam via `tools/pre-execute` and **fail closed**: with no approval channel composed, the call is denied rather than silently allowed. A headless deployment needs an answerer — the Web UI has one, or drive it through a machine answerer such as the ACP bridge.
+
+Worth enabling when an agent runs unattended against an account whose **permanent-material quota** matters: deleting a draft does not give back the slot its cover consumed.
 
 ## Configuration
 
@@ -105,6 +115,7 @@ All optional; set them on the plugin row in your profile's `cordis.patch.yml`.
     tokenCacheDir: ''       # '' → a temp directory
     baseUrl: https://api.weixin.qq.com
     defaultAuthor: ''
+    requireApproval: false   # true → prompt before each write
 ```
 
 A patch layer replaces a row's whole `config`, so restate every key you want to keep.

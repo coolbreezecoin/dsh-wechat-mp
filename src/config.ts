@@ -35,6 +35,19 @@ export interface Config {
   baseUrl: string
   /** Default author written on drafts when a call omits it. */
   defaultAuthor: string
+  /**
+   * Ask the user before each upload and draft creation.
+   *
+   * Off by default. Nothing in this plugin publishes: a draft still needs a human
+   * to open the console and send it, so an unattended run leaves a draft you delete
+   * rather than a post your readers saw. Prompting twice per article to guard an
+   * action the platform already gates was friction without a matching risk.
+   *
+   * Turn it on to restore the prompts — worth it when an agent runs unattended on
+   * an account whose permanent-material quota you care about, since the slot each
+   * cover consumes is not reclaimed by deleting the draft.
+   */
+  requireApproval: boolean
 }
 
 export const Config: Schema<Config> = Schema.object({
@@ -49,6 +62,7 @@ export const Config: Schema<Config> = Schema.object({
   tokenCacheDir: Schema.string().default(''),
   baseUrl: Schema.string().default(DEFAULT_BASE_URL),
   defaultAuthor: Schema.string().default(''),
+  requireApproval: Schema.boolean().default(false),
 })
 
 /** Where rendered artifacts go when the deployment does not pin a directory. */

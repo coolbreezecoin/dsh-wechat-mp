@@ -67,11 +67,11 @@ markdown 进,公众号能吃的 HTML 出。写出正文文件和一个独立预�
 | `indent` | 段落首行缩进 2em |
 | `line_numbers` | 代码块显示行号 |
 
-### `mp_upload_image` —— 写操作,**需要审批**
+### `mp_upload_image` —— 写操作
 
 传一张本地 jpg/png(小于 1MB),返回它的 `mmbiz.qpic.cn` 地址。
 
-### `mp_create_draft` —— 写操作,**需要审批**
+### `mp_create_draft` —— 写操作
 
 拿 `mp_render` 给的 `htmlPath`、上传得到的 token→URL 映射、标题和封面,创建草稿。
 
@@ -83,9 +83,19 @@ markdown 进,公众号能吃的 HTML 出。写出正文文件和一个独立预�
 
 ## 审批
 
-两个写操作通过 `tools/pre-execute` 接进 dsh 的审批机制,并且**fail closed**:没有审批通道时是拒绝,不是默认放行。**没有开关可以关掉它**——公众号是对外发布渠道。
+写操作默认不弹确认。插件本来就不发布任何东西——草稿仍然要人到后台点发送——所以无人值守跑一趟,留下的是一条你顺手删掉的草稿,而不是读者已经看到的推送。
 
-所以一个没有应答者的 headless 部署确实传不了图、建不了草稿,这是有意的。要么组合一个审批应答者(Web UI 自带),要么用 ACP 这类 machine answerer 驱动。
+想要确认就打开:
+
+```yaml
+- id: wechat-mp
+  config:
+    requireApproval: true
+```
+
+打开后走 dsh 的审批机制(`tools/pre-execute`),并且 **fail closed**:没有审批通道时是拒绝,不是默认放行。所以 headless 部署需要自己组合应答者——Web UI 自带一个,或者用 ACP 这类 machine answerer 驱动。
+
+什么时候值得打开:agent 无人值守跑、而你在意这个号的**永久素材名额**——删草稿并不会把封面占掉的那个名额还给你。
 
 ## 配置
 
@@ -105,6 +115,7 @@ markdown 进,公众号能吃的 HTML 出。写出正文文件和一个独立预�
     tokenCacheDir: ''       # 留空 → 临时目录
     baseUrl: https://api.weixin.qq.com
     defaultAuthor: ''
+    requireApproval: false   # true → 每次写操作前弹确认
 ```
 
 注意 patch 层是**整体替换**一行的 `config`,不做深合并——想保留的键要一起写全。

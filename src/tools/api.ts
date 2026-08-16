@@ -58,18 +58,27 @@ async function connect(ctx: Context, config: Config): Promise<MpClient> {
  * @param config - deployment settings.
  */
 export function registerApiTools(ctx: Context, config: Config): void {
+  // The model plans differently when a call will pause for a human, so the promise
+  // in the description has to track the gate rather than assert it unconditionally.
+  const approvalNote = config.requireApproval ? ' Requires user approval.' : ''
+
   // Writes to a public publishing account are gated at the policy layer rather than
   // inside each tool, so a deployment can reorder or extend the policy without
   // touching this plugin. The pipeline fails closed when no approval channel exists.
-  ctx.on('tools/pre-execute', async (exec, next) => {
-    if (!WRITE_TOOLS.has(exec.name)) return next()
-    return {
-      kind: 'ask',
-      reason: exec.name === 'mp_upload_image'
-        ? '上传图片到公众号素材库'
-        : '在公众号草稿箱创建草稿',
-    }
-  })
+  //
+  // Registering the listener only when the gate is wanted keeps a disabled gate off
+  // the waterfall entirely, rather than having it run and immediately delegate.
+  if (config.requireApproval) {
+    ctx.on('tools/pre-execute', async (exec, next) => {
+      if (!WRITE_TOOLS.has(exec.name)) return next()
+      return {
+        kind: 'ask',
+        reason: exec.name === 'mp_upload_image'
+          ? '上传图片到公众号素材库'
+          : '在公众号草稿箱创建草稿',
+      }
+    })
+  }
 
   ctx.tools.register(defineTool({
     name: 'mp_upload_image',
@@ -77,7 +86,7 @@ export function registerApiTools(ctx: Context, config: Config): void {
       'Upload one local image to the WeChat Official Account and return the '
       + 'mmbiz.qpic.cn URL that article bodies must use. WeChat strips images served '
       + 'from any other host, so every local image in an article goes through this. '
-      + 'Accepts jpg and png under 1 MB. Requires user approval.',
+      + 'Accepts jpg and png under 1 MB.' + approvalNote,
     parameters: {
       path: { type: 'string', required: true, description: 'Absolute path to a local jpg or png.' },
     },
@@ -112,8 +121,8 @@ export function registerApiTools(ctx: Context, config: Config): void {
       + 'mp_render. Does NOT publish: a human still confirms and sends it from the '
       + 'Official Account console. Every image placeholder token must be resolved first — '
       + 'pass the token→url map from mp_upload_image, or the call is refused rather than '
-      + 'shipping an article with broken images. WeChat requires a cover image. '
-      + 'Requires user approval.',
+      + 'shipping an article with broken images. WeChat requires a cover image.'
+      + approvalNote,
     parameters: {
       html_path: {
         type: 'string',
