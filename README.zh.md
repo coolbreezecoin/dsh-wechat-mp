@@ -8,6 +8,9 @@
 
 agent 负责渲染文章、上传图片、创建草稿。**不做群发**——发送这一步留给你在公众平台后台确认。
 
+<!-- 用绝对 URL:npm 在自己的域名下渲染 README,仓库相对路径会 404。 -->
+![渲染文章并建好草稿的完整过程](https://raw.githubusercontent.com/coolbreezecoin/dsh-wechat-mp/main/assets/demo.gif)
+
 ## 为什么需要它
 
 公众号编辑器会把 `<style>` 块和 class 名整个扔掉,还会过滤掉所有不在 `mmbiz.qpic.cn` 上的图片。所以「把 HTML 粘进去」是行不通的,引用自己图床的文章也一样。这个插件替你干那两件无聊又容易错的事:**把每条样式内联到元素上**,以及**让每张图都走微信自己的上传接口**。

@@ -8,6 +8,10 @@ A [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) plugin tha
 
 The agent renders the article, uploads each image, and creates the draft. It never broadcasts: sending is left to a human in the Official Account console.
 
+<!-- Absolute URL: npm renders this README on its own domain, where a repo-relative
+     path would 404. -->
+![Rendering an article and creating the draft, end to end](https://raw.githubusercontent.com/coolbreezecoin/dsh-wechat-mp/main/assets/demo.gif)
+
 ## Why it exists
 
 The WeChat editor throws away `<style>` blocks and class names, and filters every image not hosted on `mmbiz.qpic.cn`. So "paste your HTML in" does not work, and neither does an article that references your own CDN. This plugin does the two boring, error-prone parts: **inline every style onto its element**, and **route every image through WeChat's own upload endpoint**.

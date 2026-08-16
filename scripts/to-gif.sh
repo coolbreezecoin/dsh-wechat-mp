@@ -6,9 +6,12 @@
 #
 #   scripts/to-gif.sh demo.mov [out.gif] [width] [fps]
 #
-# Defaults suit a README: 900px wide, 12fps. Trim with START/DURATION first if
-# the recording has dead air:
-#   START=3 DURATION=25 scripts/to-gif.sh demo.mov
+# Defaults suit a README: 900px wide, 12fps. Env knobs, all optional:
+#   START / DURATION  seconds, to cut dead air at either end
+#   SPEED             playback multiplier, e.g. 2 halves the running time
+#   CROP              ffmpeg w:h:x:y, to drop a sidebar or window chrome
+#
+#   START=30 DURATION=28 SPEED=2 CROP=2461:1716:555:0 scripts/to-gif.sh demo.mov
 
 set -euo pipefail
 
@@ -25,7 +28,19 @@ TRIM=()
 [[ -n ${DURATION:-} ]] && TRIM+=(-t "$DURATION")
 
 PALETTE=$(mktemp -t dsh-gif-palette).png
-FILTERS="fps=${FPS},scale=${WIDTH}:-1:flags=lanczos"
+
+# CROP takes ffmpeg's w:h:x:y, useful for cutting a sidebar or chrome out of a
+# full-window capture so the remaining text survives the downscale.
+CROP_FILTER=""
+[[ -n ${CROP:-} ]] && CROP_FILTER="crop=${CROP},"
+
+# SPEED compresses the model's thinking pauses, which are most of a real agent
+# recording and carry no information. setpts runs before fps so the frame budget
+# is spent on the sped-up timeline.
+SPEED_FILTER=""
+[[ -n ${SPEED:-} ]] && SPEED_FILTER="setpts=PTS/${SPEED},"
+
+FILTERS="${CROP_FILTER}${SPEED_FILTER}fps=${FPS},scale=${WIDTH}:-1:flags=lanczos"
 
 mkdir -p "$(dirname "$OUT")"
 
