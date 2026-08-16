@@ -93,6 +93,31 @@ describe('render', () => {
     expect(html).toContain('结尾段落。')
   })
 
+  it('carries code-block line breaks and indentation as markup', () => {
+    // Regression: the theme sets `white-space: nowrap` on code because WeChat
+    // only scrolls a `-webkit-box`. Real newlines and spaces are collapsed by
+    // that, so a block submitted as-is arrived as one jammed line —
+    // "export function" rendered as "exportfunction".
+    const { html } = render('```ts\nexport function a() {\n  return 1\n}\n```')
+    const code = html.match(/<code[\s\S]*?<\/code>/)![0]
+
+    expect(code).not.toMatch(/\n/)
+    // Three lines, so two separators — marked drops the block's trailing newline.
+    expect((code.match(/<br\s*\/?>/g) ?? []).length).toBe(2)
+    // The two-space indent survives as entities, not as collapsible spaces.
+    expect(code).toContain('&nbsp;&nbsp;')
+    // Separators between highlighted tokens survive, so keywords stay apart
+    // instead of collapsing into "exportfunction".
+    expect(code).toMatch(/export<\/span>&nbsp;/)
+  })
+
+  it('keeps code lines in order under -webkit-box', () => {
+    // Sibling spans and <br> become flex items in a -webkit-box on some
+    // engines, which scrambles line order; one block child prevents it.
+    const { html } = render('```ts\nconst a = 1\nconst b = 2\n```')
+    expect(html).toMatch(/<code[^>]*><span style="display:\s*block">/)
+  })
+
   it('does not let inline code smuggle a script tag through', () => {
     const { html } = render('见 `<script>alert(1)</script>` 示例')
     expect(html).not.toMatch(/<script/i)

@@ -77,6 +77,25 @@ function withLineNumbers(highlighted: string): string {
 }
 
 /**
+ * Make code-block whitespace survive the theme's `white-space: nowrap`.
+ *
+ * WeChat scrolls long code lines only when the block is a `-webkit-box` with
+ * `nowrap`, and that combination collapses real newlines and runs of spaces —
+ * a highlighted block submitted as-is arrives as one jammed line. Line breaks
+ * and indentation therefore have to travel as markup, not as characters.
+ * @param highlighted - highlight.js output, already HTML-escaped.
+ * @returns the same markup with breaks and indentation preserved.
+ */
+function preserveCodeWhitespace(highlighted: string): string {
+  return highlighted
+    .replace(/\t/g, '    ')
+    .replace(/\r\n|\n/g, '<br/>')
+    // Text nodes only. A run that starts after `>` or at the very start cannot
+    // reach into a tag, because `<` terminates it — so attributes are untouched.
+    .replace(/(>[^<]+)|(^[^<]+)/g, run => run.replace(/ /g, '&nbsp;'))
+}
+
+/**
  * Render markdown to HTML carrying the theme's class names, replacing every image
  * `src` with a placeholder token so uploads can be filled in afterwards.
  * @param markdown - the article source.
@@ -96,7 +115,11 @@ export function renderMarkdown(markdown: string, options: MarkdownOptions = {}):
         const language = requested && hljs.getLanguage(requested) ? requested : 'plaintext'
         let body = hljs.highlight(text, { language }).value
         if (options.lineNumbers) body = withLineNumbers(body)
-        return `<pre class="hljs code__pre"><code class="language-${language}">${body}</code></pre>`
+        body = preserveCodeWhitespace(body)
+        // One block-level child: under `-webkit-box`, sibling spans and `<br/>`
+        // are laid out as flex items by some engines, which scrambles line order.
+        return `<pre class="hljs code__pre"><code class="language-${language}">`
+          + `<span style="display:block">${body}</span></code></pre>`
       },
       codespan({ text }): string {
         // marked hands the renderer the RAW span content and relies on the default
