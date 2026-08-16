@@ -1,6 +1,6 @@
 {
   "name": "dsh-wechat-mp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "DeepSeek Harness plugin: turn markdown into a typeset WeChat Official Account draft.",
   "license": "MIT",
   "repository": {
